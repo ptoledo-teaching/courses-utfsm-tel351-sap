@@ -1,0 +1,107 @@
+openapi: 3.0.1
+info:
+  title: tel351-sap
+  description: API de pruebas operacionales sobre la infraestructura de la Holonet
+  version: 1.0.0
+paths:
+  /experiments/{experimentId}:
+    parameters:
+      - $ref: '#/components/parameters/ExperimentId'
+    put:
+      operationId: createExperiment
+      summary: Crear un experimento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentInput'
+      responses:
+        '201':
+          description: Experimento creado
+        '400':
+          description: Solicitud inválida
+        '409':
+          description: El experimento ya existe
+    get:
+      operationId: getExperiment
+      summary: Obtener un experimento
+      responses:
+        '200':
+          description: Experimento encontrado
+        '404':
+          description: El experimento no existe
+  /experiments/{experimentId}/observations:
+    parameters:
+      - $ref: '#/components/parameters/ExperimentId'
+    post:
+      operationId: addObservation
+      summary: Agregar una observación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservationInput'
+      responses:
+        '201':
+          description: Observación creada
+        '400':
+          description: Solicitud inválida
+        '409':
+          description: La operación contradice el estado almacenado
+    get:
+      operationId: listObservations
+      summary: Listar las observaciones de un experimento
+      responses:
+        '200':
+          description: Observaciones ordenadas cronológicamente
+  /experiments/{experimentId}/close:
+    parameters:
+      - $ref: '#/components/parameters/ExperimentId'
+    patch:
+      operationId: closeExperiment
+      summary: Cerrar un experimento
+      responses:
+        '200':
+          description: Experimento cerrado
+        '409':
+          description: El experimento no existe o no está abierto
+components:
+  parameters:
+    ExperimentId:
+      name: experimentId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 80
+  schemas:
+    ExperimentInput:
+      type: object
+      required:
+        - name
+        - sector
+      properties:
+        name:
+          type: string
+        sector:
+          type: string
+    ObservationInput:
+      type: object
+      required:
+        - observationId
+        - observedAt
+        - source
+        - message
+      properties:
+        observationId:
+          type: string
+        observedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        message:
+          type: string
